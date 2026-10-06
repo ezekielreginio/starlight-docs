@@ -44,6 +44,17 @@ All commands are run from the root of the project, from a terminal:
 | `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
 | `npm run astro -- --help` | Get help using the Astro CLI                     |
 
+## 🐳 Docker
+
+Build the production image and run the documentation site on port 8001:
+
+```sh
+docker build -t starlight-docs .
+docker run --rm -p 8001:8001 starlight-docs
+```
+
+The site is then available at [http://localhost:8001](http://localhost:8001).
+
 ## 👀 Want to learn more?
 
 Check out [Starlight’s docs](https://starlight.astro.build/), read [the Astro documentation](https://docs.astro.build), or jump into the [Astro Discord server](https://astro.build/chat).
