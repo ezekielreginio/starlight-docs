@@ -1,0 +1,58 @@
+---
+title: Zeke's Self Hosted Proxmox Clusters
+description: Central documentation for the Proxmox VE 3-Node High Availability Cluster.
+template: splash
+hero:
+  tagline: Operational guide, hardware inventory, and cluster configuration for the 3-node setup.
+  actions:
+    - text: View Docs
+      link: /hardware-specifications/
+      icon: right-arrow
+      variant: primary
+    - text: SRE Remediation Matrix
+      link: '#sre-remediation-matrix'
+      icon: warning
+      variant: minimal
+---
+
+## Cluster Overview 📊
+
+The Proxmox Atlas cluster is designed as a **3-Node Homogeneous Small-Form-Factor (1L) High Availability (HA)** homelab setup on the `192.168.1.0/24` management network[cite: 2].
+
+* **Quorum Model**: 3 Physical Nodes (3 total votes)[cite: 2].
+* **Quorum Threshold**: 2 votes required to maintain write quorum[cite: 2].
+* **Fault Tolerance**: Up to 1 node offline without losing cluster availability[cite: 2].
+
+---
+
+## Host Inventory 🖥️
+
+### 1. Large Node `com` (HP ProDesk Mini G2)
+* **IP Address**: `192.168.1.210:8006`[cite: 2]
+* **CPU / Memory**: Intel i5-7400 (4C/4T) | 32 GB DDR4[cite: 2]
+* **Primary Role**: Development Sandbox, Media Library Ecosystem
+* **PVE Version**: 8.1.3 *(Pending upgrade to 9.2.x)*[cite: 2]
+
+### 2. Small Node `dell` (Dell OptiPlex Micro)
+* **IP Address**: `192.168.1.220:8006`[cite: 2]
+* **CPU / Memory**: Intel i3-4160 (2C/4T) | 16 GB DDR3[cite: 2]
+* **Primary Role**: Small Personal Project Showcase
+* **PVE Version**: 9.2.2[cite: 2]
+
+### 3. Medium Node `lenovo` (Lenovo ThinkCentre Tiny)
+* **IP Address**: `192.168.1.230:8006`[cite: 2]
+* **CPU / Memory**: Intel i3-7100T (2C/4T) | 12 GB DDR4[cite: 2]
+* **Primary Role**: DevOps Sandbox
+* **PVE Version**: 9.2.2[cite: 2]
+
+---
+
+## SRE Remediation Matrix ⚠️
+
+Before establishing the Corosync cluster mesh, the following operational risks must be resolved:
+
+| Target Host | Identified Risk | Technical Impact | Action Item |
+| :--- | :--- | :--- | :--- |
+| **Node `com`** | Virtualized ZFS over `.qcow2` on USB DAS[cite: 2] | High CPU overhead & risk of pool corruption[cite: 2] | Migrate TrueNAS VM to unprivileged SAMBA/OMV LXC with bind mounts[cite: 2] |
+| **Node `dell`** | Over-allocated RAM on VM 100 (7.91 GB)[cite: 2] | Host memory starvation[cite: 2] | Trim RAM allocation to 4 GB (`qm set 100 --memory 4096`)[cite: 2] |
+| **Node `com`** | PVE Version Drift (8.1.3 vs 9.2.2)[cite: 2] | Corosync RPC and migration errors[cite: 2] | Upgrade `com` to PVE 9.2.x before joining cluster

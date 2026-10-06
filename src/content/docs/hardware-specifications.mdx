@@ -1,0 +1,66 @@
+---
+title: 01 - Hardware Specifications
+description: Physical hardware specifications, CPU architectures, memory configurations, and storage layouts for the Proxmox Atlas cluster nodes.
+---
+
+This document outlines the hardware baseline for all three physical hosts in the **Proxmox Atlas** cluster[cite: 1].
+
+---
+
+## Hardware Comparison Matrix 📊
+
+| Node Hostname | Chassis Form Factor | CPU & Architecture | Memory | Boot Mode | Primary Storage | PVE Version |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **`com`** | HP ProDesk Mini G2 (1L)[cite: 1] | Intel i5-7400 (Kaby Lake)[cite: 1] | 32 GB DDR4[cite: 1] | UEFI | 1 TB System SSD + 5-Bay DAS[cite: 1] | `8.1.3` *(Pending Upgrade)*[cite: 1] |
+| **`dell`** | Dell OptiPlex Micro (1L)[cite: 1] | Intel i3-4160 (Haswell)[cite: 1] | 16 GB DDR3[cite: 1] | Legacy BIOS[cite: 1] | 512 GB System SSD[cite: 1] | `9.2.2`[cite: 1] |
+| **`lenovo`** | Lenovo ThinkCentre Tiny (1L)[cite: 1] | Intel i3-7100T (Kaby Lake)[cite: 1] | 12 GB DDR4[cite: 1] | EFI (Secure Boot)[cite: 1] | 128 GB System SSD[cite: 1] | `9.2.2`[cite: 1] |
+
+---
+
+## Detailed Node Profiles 🖥️
+
+### Node 1 (Large): `com` (HP ProDesk Mini G2)
+* **IP Address**: `192.168.1.210:8006`[cite: 1]
+* **Processor**: Intel Core i5-7400 (4 Cores / 4 Threads @ 3.00 GHz Base / 3.50 GHz Boost)[cite: 1]
+* **iGPU / Transcoding**: Intel HD Graphics 630 (HEVC 10-bit QuickSync)[cite: 1]
+* **Memory**: 32 GB DDR4[cite: 1]
+* **Internal Storage**: 1 TB System SSD[cite: 1]
+  * `local`: Directory (`/var/lib/vz`) for ISOs, CT templates, and backups[cite: 1].
+  * `local-lvm`: LVM-Thin Pool for VM/LXC block storage[cite: 1].
+* **External Direct-Attached Storage (DAS)**: 5-Bay USB 3.2 Gen 2 SATA Enclosure[cite: 1]
+  * `/mnt/sdb1`: ~3.64 TB[cite: 1]
+  * `/mnt/sdc1`: Unassigned / Reserved[cite: 1]
+  * `/mnt/sdd1`: ~3.64 TB[cite: 1]
+  * `/mnt/sde1`: ~3.64 TB[cite: 1]
+  * `/mnt/sde2`: ~5.46 TB[cite: 1]
+  * `/mnt/sdf1`: ~5.46 TB[cite: 1]
+
+### Node 2 (Small): `dell` (Dell OptiPlex Micro)
+* **IP Address**: `192.168.1.220:8006`[cite: 1]
+* **Processor**: Intel Core i3-4160 (2 Cores / 4 Threads @ 3.10 GHz)[cite: 1]
+* **iGPU / Transcoding**: Intel HD Graphics 4400[cite: 1]
+* **Memory**: 16 GB DDR3 (15.54 GiB total host recognized)[cite: 1]
+* **Boot Mode**: Legacy BIOS[cite: 1]
+* **Internal Storage**: 512 GB System SSD[cite: 1]
+  * `local`: Directory (`/var/lib/vz`, 93.93 GiB root partition)[cite: 1].
+  * `local-lvm`: LVM-Thin Pool (413.54 GiB capacity)[cite: 1].
+
+### Node 3 (Medium): `lenovo` (Lenovo ThinkCentre Tiny)
+* **IP Address**: `192.168.1.230:8006`[cite: 1]
+* **Processor**: Intel Core i3-7100T (2 Cores / 4 Threads @ 3.40 GHz)[cite: 1]
+* **iGPU / Transcoding**: Intel HD Graphics 630 (QuickSync video acceleration)[cite: 1]
+* **Memory**: 12 GB DDR4 (11.57 GiB total host recognized)[cite: 1]
+* **Boot Mode**: EFI (Secure Boot Enabled)[cite: 1]
+* **Internal Storage**: 128 GB System SSD[cite: 1]
+  * `local`: Directory (`/var/lib/vz`, 67.73 GiB root partition)[cite: 1].
+  * `local-lvm`: LVM-Thin Pool[cite: 1].
+
+---
+
+## Architectural & Compatibility Notes ⚙️
+
+:::caution[CPU Heterogeneity & Live Migration]
+Because **Node 2 (`dell`)** uses 4th Gen Haswell architecture while **Nodes 1 & 3 (`com` & `lenovo`)** use 7th Gen Kaby Lake, passing raw `host` CPU types to guest VMs will break live migration. 
+
+To enable seamless live migration across all nodes, all guest VMs must be configured to use the custom CPU model **`x86-64-v2-AES`**[cite: 1, 2].
+:::
