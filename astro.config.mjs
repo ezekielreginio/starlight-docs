@@ -17,6 +17,10 @@ export default defineConfig({
 					label: 'Monitoring',
 					items: [{ autogenerate: { directory: 'monitoring' } }],
 				},
+				{
+					label: 'Articles Management',
+					items: [{ autogenerate: { directory: 'articles-management' } }],
+				},
 			],
 		}),
 	],

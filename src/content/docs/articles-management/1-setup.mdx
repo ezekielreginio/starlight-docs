@@ -1,0 +1,129 @@
+---
+title: Setup & Infrastructure
+description: Container stack configuration and Cloudflare Tunnel routing for Karakeep.
+---
+
+## Deployment Architecture
+
+Karakeep runs as a multi-container bundle managed by Docker Compose in `/home/personal-projects/karakeep/` on the `dell-personal-projects` VM.
+
+```
+[ Public Client ]
+       │ HTTPS
+       ▼
+[ Cloudflare Edge ]
+       │ Cloudflare Tunnel (Tunnel ID: 399673c7-6cc4-4f82-87ef-fe1980089f95)
+       ▼
+[ cloudflared daemon (systemd) ]
+       │ HTTP (127.0.0.1:3000)
+       ▼
+[ karakeep-web Container ]
+       ├──▶ [ karakeep-chrome ] (Headless Crawler :9222)
+       └──▶ [ karakeep-meilisearch ] (Search Indexer :7700)
+```
+
+---
+
+## Docker Compose File (`docker-compose.yml`)
+
+Located at `/home/personal-projects/karakeep/docker-compose.yml`:
+
+```yaml
+services:
+  web:
+    image: ghcr.io/karakeep-app/karakeep:release
+    container_name: karakeep-web
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:3000:3000"
+    environment:
+      NEXTAUTH_URL: "[https://articles.dev-ezekiel.com](https://articles.dev-ezekiel.com)"
+      NEXTAUTH_SECRET: "[next-auth-secret]"
+      MEILI_MASTER_KEY: "[meili-secret]"
+      MEILI_ADDR: "http://meilisearch:7700"
+      BROWSER_WEB_URL: "http://chrome:9222"
+      DISABLE_SIGNUPS: "true"
+    volumes:
+      - karakeep_data:/app/packages/db/data
+    depends_on:
+      meilisearch:
+        condition: service_started
+      chrome:
+        condition: service_started
+
+  chrome:
+    image: zenika/alpine-chrome:123
+    container_name: karakeep-chrome
+    restart: unless-stopped
+    command:
+      - --no-sandbox
+      - --disable-gpu
+      - --disable-dev-shm-usage
+      - --remote-debugging-address=0.0.0.0
+      - --remote-debugging-port=9222
+
+  meilisearch:
+    image: getmeili/meilisearch:v1.11.1
+    container_name: karakeep-meilisearch
+    restart: unless-stopped
+    environment:
+      MEILI_MASTER_KEY: "[meili-secret]"
+      MEILI_NO_ANALYTICS: "true"
+    volumes:
+      - meilisearch_data:/meili_data
+
+volumes:
+  karakeep_data:
+  meilisearch_data:
+```
+
+---
+
+## Cloudflare Tunnel Configuration
+
+The ingress daemon runs natively via systemd rather than inside Docker to maintain direct localhost network access.
+
+### Configuration (`/etc/cloudflared/config.yml`)
+
+```yaml
+tunnel: [tunnel-id]
+credentials-file: /path/to/cloudflare/.json
+
+ingress:
+  - hostname: articles.dev-ezekiel.com
+    service: http://localhost:3000
+  - service: http_status:404
+```
+
+---
+
+## Management Commands
+
+### Docker Containers
+
+```bash
+# Navigate to the project directory
+cd /home/personal-projects/karakeep
+
+# Start or restart containers in the background
+docker compose up -d
+
+# Inspect running containers
+docker compose ps
+
+# View live application logs
+docker compose logs -f web
+```
+
+### Tunnel Service
+
+```bash
+# Check tunnel status
+sudo systemctl status cloudflared
+
+# Restart the tunnel daemon
+sudo systemctl restart cloudflared
+
+# View live tunnel logs
+sudo journalctl -u cloudflared -f
+```

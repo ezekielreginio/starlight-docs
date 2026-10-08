@@ -1,0 +1,67 @@
+---
+title: How to Use
+description: User guide for saving articles, full-text searching, and AI auto-tagging in Karakeep.
+---
+
+## Accessing the Application
+
+1. Open **[https://articles.dev-ezekiel.com](https://articles.dev-ezekiel.com)** in your web browser.
+2. Sign in using a demo account (demo@demo.app/demodemo).
+
+---
+
+## Bookmark & Article Management
+
+### Saving Web Pages
+1. Click the **+ Add Bookmark** button in the dashboard navigation bar.
+2. Paste the target URL and press **Submit**.
+3. The background crawler (`karakeep-chrome`) will automatically:
+   * Scrape the page content and clean main body text.
+   * Generate full-page screenshots and previews.
+   * Extract title metadata and favicon information.
+
+### Organizing Content
+* **Lists**: Create custom reading lists or topic collections from the sidebar.
+* **Favorites**: Star critical articles for rapid access.
+* **Archive**: Move read items out of your main inbox while retaining them in the full-text search index.
+
+---
+
+## Full-Text Search
+
+Karakeep indexes scraped content in real-time using **Meilisearch**.
+
+* **Instant Search**: Type queries into the top search bar to search across titles, URLs, body text, and tags simultaneously.
+* **Filters**: Filter search results by tags, reading state (archived/unread), or creation date range.
+
+---
+
+## AI Auto-Tagging Setup
+
+Karakeep can automatically generate tags and summaries for incoming articles using AI models.
+
+### Option 1: Local AI via Ollama (Free & Private)
+To use a local Ollama instance without cloud API keys, add the following environment variable to the `web` service in `docker-compose.yml`:
+
+```yaml
+    environment:
+      OLLAMA_BASE_URL: "http://<YOUR_OLLAMA_IP>:11434"
+```
+
+### Option 2: Cloud AI Keys (Gemini / OpenAI / OpenRouter)
+If you prefer cloud-powered tagging, configure your API credentials inside the Web UI:
+
+1. Navigate to **Admin Settings ⚙️ → AI**.
+2. Select your AI Provider (e.g., Google Gemini, OpenAI, or OpenRouter).
+3. Input your API key and specify the target inference model (e.g., `gemini-2.5-flash-lite` or `gpt-4o-mini`).
+4. Enable **Auto-Tagging on Import**.
+
+---
+
+## Administrative Settings
+
+Access **Admin Settings ⚙️** from your user avatar menu to perform system tasks:
+
+* **User Management**: Modify account details or promote secondary users.
+* **Re-Indexing**: Re-trigger a full Meilisearch indexing pass across all saved bookmarks.
+* **Tag Rules**: Define automated regex rules or custom prompt directives for AI content extraction.
