@@ -1,0 +1,35 @@
+---
+title: Introduction & Overview
+description: Introduction to the self-hosted Karakeep bookmarking, web archiving, and search platform.
+---
+
+## What is Articles Management (Karakeep)?
+
+**Articles Management** (powered by [Karakeep](https://github.com/karakeep-app/karakeep)) is a self-hosted, privacy-first web archiving and bookmark management engine. Deployed on the `dell-personal-projects` virtual machine, it automatically scrapes, snapshots, indexes, and organizes saved web links into a personal searchable vault.
+
+Unlike standard browser bookmarks that only save web addresses, Karakeep preserves the full body text, metadata, and rendered screenshots of every web page you save—ensuring your saved content remains accessible even if the original website goes offline or changes.
+
+---
+
+## Key Platform Capabilities
+
+* 🔍 **Instant Full-Text Search**: Powered by an integrated **Meilisearch** cluster that indexes titles, clean body text, URLs, and tags in real time.
+* 📸 **Automated Web Archiving**: An internal **Alpine Chrome** headless browser crawls every submitted link to extract clean reader-mode text and full-page visual previews.
+* 🏷️ **AI Auto-Tagging & Summarization**: Connects with local LLMs (via Ollama) or cloud providers (Google Gemini / OpenAI) to analyze imported page contents, generate summaries, and assign topical tags automatically.
+* 🔒 **Encrypted Tunnel Access**: Isolated from direct public port exposure and served securely over HTTPS at `https://articles.dev-ezekiel.com` using a native `cloudflared` Linux systemd service.
+
+---
+
+## Sample Use Cases
+
+### 1. Technical Research & Developer Documentation Vault
+* **Scenario**: You frequently reference technical blog posts, API guides, and system design tutorials that risk turning into broken links (404s) or disappearing behind paywalls.
+* **Workflow**: Save the article link directly to Karakeep. The background crawler extracts the full body text and code snippets, allowing you to reference the guide permanently from your local server.
+
+### 2. "Second Brain" Knowledge Retrieval
+* **Scenario**: You remember reading a specific command line trick, hardware spec, or configuration snippet weeks ago, but can't find it in your browser history.
+* **Workflow**: Type any fragment of text or concept into the Karakeep search bar. Meilisearch queries the indexed body contents of all saved articles and instantly highlights matching instances.
+
+### 3. Distraction-Free Read-Later Queue
+* **Scenario**: You discover long-form articles during work hours filled with heavy ads, popups, and intrusive banners.
+* **Workflow**: Import the URLs into Karakeep during the day. Access `articles.dev-ezekiel.com` on your tablet or mobile device later to read
